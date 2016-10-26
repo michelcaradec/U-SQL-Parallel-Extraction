@@ -1,0 +1,17 @@
+﻿USE DATABASE ParallelExtraction;
+
+DECLARE CONST @usql_dataroot = @"%LOCALAPPDATA%\USQLDataRoot";
+DECLARE CONST @cnx_string = "provider=sampleprovider;datasource=" + @usql_dataroot + @"\parallel\sampleprovider.tsv";
+
+@data =
+    EXTRACT extractor_id long,
+            partition_id string,
+            partition string,
+            value1 string,
+            value2 string
+    FROM "/parallel/part-{*}.tsv"
+    USING new ParallelExtraction.PartitionExtractor(@cnx_string);
+
+OUTPUT @data
+TO "/parallel/output.tsv"
+USING Outputters.Tsv(quoting: false);

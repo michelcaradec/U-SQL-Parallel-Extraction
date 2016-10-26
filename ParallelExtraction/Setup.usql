@@ -1,0 +1,16 @@
+﻿// 1. Create database
+CREATE DATABASE IF NOT EXISTS ParallelExtraction;
+USE ParallelExtraction;
+
+// 2. Build external partitioned data source
+@one_row = SELECT * FROM (VALUES(1)) AS vt(id);
+
+@items = SELECT item FROM @one_row CROSS APPLY EXPLODE(new SqlArray<string>(Enumerable.Range(1, 26).Select(it => string.Format("{0};{1};{2}", ((char)(64 + it)), it, 27 - it)))) AS a(item);
+
+@items = SELECT new SqlArray<string>(item.Split(';')) AS tokens FROM @items;
+
+@items = SELECT tokens[0] AS partition, Int32.Parse(tokens[1]) AS value1, Int32.Parse(tokens[2]) AS value2 FROM @items; 
+
+OUTPUT @items
+TO "/parallel/sampleprovider.tsv"
+USING Outputters.Tsv(quoting: false);

@@ -1,0 +1,23 @@
+﻿USE DATABASE ParallelExtraction;
+
+// 1. Build partition files
+OUTPUT
+(
+    SELECT * FROM (VALUES("a-f", "A", "F")) AS vt(id, from, to)
+)
+TO "/parallel/part-af.tsv"
+USING Outputters.Tsv(quoting: false);
+
+OUTPUT
+(
+    SELECT * FROM (VALUES("g-q", "G", "Q")) AS vt(id, from, to)
+)
+TO "/parallel/part-gq.tsv"
+USING Outputters.Tsv(quoting: false);
+
+OUTPUT
+(
+    SELECT * FROM (VALUES("r-z", "R", "Z")) AS vt(id, from, to)
+)
+TO "/parallel/part-rz.tsv"
+USING Outputters.Tsv(quoting: false);
